@@ -6,11 +6,14 @@ Plugin Name: FFLF School Visits
 global $fflf_sv_db_version;
 $fflf_sv_db_version='0.1';
 
+global $wpdb;
+global $table_name;
+$table_name = $wpdb->prefix . "fflfSchoolVisits";
+
 function fflf_sv_install() {
     global $wpdb;
     global $fflf_sv_db_version;
-
-    $table_name= $wpdb->prefix . "fflfSchoolVisits";
+    global $table_name;   
 
     $charset_collate = $wpdb->get_charset_collate();
 
@@ -43,49 +46,50 @@ function fflf_sv_install() {
 
 //GET wp-json/fflf-school-visits/visits
 function get_unclaimed_visits(){
+    global $wpdb, $table_name;
+
     $return_arr = array();
-    
-    array_push($return_arr, array(
-        'eventId' => 1,
-        'schoolName' => 'dummy school 1',
-        'className' => 'dummy class 1',
-        'grade' => '5-6',
-        'startDate' => '2018-10-27 10:00',
-        'endDate' => '2018-10-27 15:00',
-        'schoolAddress' => '123 Main Street',
-        'schoolCity' => 'Indianapolis',
-        'schoolState' => 'IN',
-        'schoolZip' => '46203' 
-    ));
-
-    array_push($return_arr, array(
-        'eventId' => 2,
-        'schoolName' => 'dummy school 1',
-        'className' => 'dummy class 2',
-        'grade' => '4',
-        'startDate' => '2018-10-27 10:00',
-        'endDate' => '2018-10-27 15:00',
-        'schoolAddress' => '123 Main Street',
-        'schoolCity' => 'Indianapolis',
-        'schoolState' => 'IN',
-        'schoolZip' => '46203' 
-    ));
-
-    array_push($return_arr, array(
-        'eventId' => 3,
-        'schoolName' => 'dummy school 1',
-        'className' => 'dummy class 2',
-        'grade' => '4',
-        'startDate' => '2018-10-29 10:00',
-        'endDate' => '2018-10-29 15:00',
-        'schoolAddress' => '123 Main Street',
-        'schoolCity' => 'Indianapolis',
-        'schoolState' => 'IN',
-        'schoolZip' => '46203' 
-    ));
+    $unclaimedVisits = $wpdb->get_results("
+        SELECT *
+        FROM $table_name
+        WHERE claimed=0;");
+    foreach($unclaimedVisits as $visit){
+        array_push($return_arr, array(
+            'eventId' => $visit->eventId
+        ));
+    }
 
     return $return_arr;
     //return json_encode($return_arr);
+}
+
+function create_unclaimed_visit(){
+    global $wpdb, $table_name;
+    $schoolName = 'dummy school name';
+    $className = 'dummy class name';
+    $grade = '3-4';
+    $startDate = '2018-11-01 10:00';
+    $endDate = '2018-11-01 15:00';
+    $schoolAddress = '123 main street';
+    $schoolCity = 'indianapolis';
+    $schoolState='IN';
+    $schoolZip='46203';
+
+    $wpdb->insert(
+        $table_name,
+        array('schoolName' => $schoolName,
+            'className' => $className,
+            'grade'=>$grade,
+            'startDate'=>$startDate,
+            'endDate'=>$endDate,
+            'schoolAddress'=>$schoolAddress,
+            'schoolCity'=>$schoolCity,
+            'schoolState'=>$schoolState,
+            'schoolZip'=>$schoolZip),
+        array(
+            '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'
+        )
+    );
 }
 
 function fflf_sv_update_db_check(){
@@ -99,8 +103,12 @@ add_action( 'plugins_loaded', 'fflf_sv_update_db_check' );
 
 add_action( 'rest_api_init', function () {
     register_rest_route( 'fflf-school-visits', '/visits', array(
-      'methods' => 'GET',
-      'callback' => 'get_unclaimed_visits',
-    ) );
+        'methods' => 'GET',
+        'callback' => 'get_unclaimed_visits',      
+    ));
+    register_rest_route( 'fflf-school-visits', '/visits', array(
+        'methods' => 'POST',
+        'callback' => 'create_unclaimed_visit',
+    ));
   } );
 ?>
