@@ -4,7 +4,7 @@ Plugin Name: FFLF School Visits
 */
 
 global $fflf_sv_db_version;
-$fflf_sv_db_version='0.1';
+$fflf_sv_db_version='0.2';
 
 global $wpdb;
 global $table_name;
@@ -24,6 +24,7 @@ function fflf_sv_install() {
         grade VARCHAR(10) NOT NULL,
         startDate DATETIME NOT NULL,
         endDate DATETIME NOT NULL,
+        topic VARCHAR(1024) NOT NULL,
         schoolAddress VARCHAR(1024) NOT NULL,
         schoolCity VARCHAR(1024) NOT NULL,
         schoolState VARCHAR(2) NOT NULL,
@@ -55,7 +56,17 @@ function get_unclaimed_visits(){
         WHERE claimed=0;");
     foreach($unclaimedVisits as $visit){
         array_push($return_arr, array(
-            'eventId' => $visit->eventId
+            'eventId' => $visit->eventId,
+            'schoolName' => $visit->schoolName,
+            'className' => $visit->className,
+            'grade' => $visit->grade,
+            'startDate' => $visit->startDate,
+            'endDate' => $visit->endDate,
+            'schoolAddress' => $visit->schoolAddress,
+            'schoolCity' => $visit->schoolCity,
+            'schoolState' => $visit->schoolState,
+            'schoolZip' => $visit->schoolZip,
+            'topic' => $visit->topic
         ));
     }
 
@@ -74,6 +85,7 @@ function create_unclaimed_visit(){
     $schoolCity = 'indianapolis';
     $schoolState='IN';
     $schoolZip='46203';
+    $topic='the question of life, the universe, and everything';
 
     $wpdb->insert(
         $table_name,
@@ -85,7 +97,9 @@ function create_unclaimed_visit(){
             'schoolAddress'=>$schoolAddress,
             'schoolCity'=>$schoolCity,
             'schoolState'=>$schoolState,
-            'schoolZip'=>$schoolZip),
+            'schoolZip'=>$schoolZip,
+            'topic'=>$topic
+            ),
         array(
             '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'
         )
