@@ -20,6 +20,32 @@ function get_unclaimed_visits(){
         'schoolZip' => '46203' 
     ));
 
+    array_push($return_arr, array(
+        'eventId' => 2,
+        'schoolName' => 'dummy school 1',
+        'className' => 'dummy class 2',
+        'grade' => '4',
+        'startDate' => '2018-10-27 10:00',
+        'endDate' => '2018-10-27 15:00',
+        'schoolAddress' => '123 Main Street',
+        'schoolCity' => 'Indianapolis',
+        'schoolState' => 'IN',
+        'schoolZip' => '46203' 
+    ));
+
+    array_push($return_arr, array(
+        'eventId' => 3,
+        'schoolName' => 'dummy school 1',
+        'className' => 'dummy class 2',
+        'grade' => '4',
+        'startDate' => '2018-10-29 10:00',
+        'endDate' => '2018-10-29 15:00',
+        'schoolAddress' => '123 Main Street',
+        'schoolCity' => 'Indianapolis',
+        'schoolState' => 'IN',
+        'schoolZip' => '46203' 
+    ));
+
     return $return_arr;
     //return json_encode($return_arr);
 }
