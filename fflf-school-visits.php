@@ -71,9 +71,9 @@ function get_unclaimed_visits(){
     }
 
     return $return_arr;
-    //return json_encode($return_arr);
 }
 
+//POST wp-json/fflf-school-visits/visits
 function create_unclaimed_visit(){
     global $wpdb, $table_name;
     $schoolName = 'dummy school name';
@@ -106,6 +106,35 @@ function create_unclaimed_visit(){
     );
 }
 
+//GET wp-json/fflf-school-visits/claim
+function claim_visit(){
+    global $wpdb, $table_name;
+    $id=$_POST['eventId'];
+    $company=$_POST['company'];
+    $redirect=$_POST['redirect'];
+    $firstname=$_POST['firstname'];
+    $lastname=$_POST['lastname'];
+    $email=$_POST['email'];
+    $phone=$_POST['phone'];
+
+    $wpdb->update(
+        $table_name,
+        array('claimed' => 1, 
+            'sponsorCompany'=>$company, 
+            'sponsorFirstName'=>$firstname, 
+            'sponsorLastName'=> $lastname, 
+            'sponsorEmail'=>$email , 
+            'sponsorPhone'=>$phone),
+        array('eventId' => $id),
+        array('%d','%s','%s','%s','%s','%s'),
+        array('%d')
+    );
+
+    header("Location: $redirect");
+    exit;
+
+}
+
 function fflf_sv_update_db_check(){
     global $fflf_sv_db_version;
     if ( get_site_option( 'fflf_sv_db_version' ) != $fflf_sv_db_version ) {
@@ -124,5 +153,10 @@ add_action( 'rest_api_init', function () {
         'methods' => 'POST',
         'callback' => 'create_unclaimed_visit',
     ));
-  } );
+
+    register_rest_route( 'fflf-school-visits', '/claim', array(
+        'methods' => 'POST',
+        'callback' => 'claim_visit',
+    ));
+  });
 ?>
